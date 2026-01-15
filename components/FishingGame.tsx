@@ -97,7 +97,7 @@ export const FishingGame: React.FC = () => {
             // Tạo instance GoogleGenAI dùng key từ env
             const ai = new GoogleGenAI({ apiKey });
             const response = await ai.models.generateContent({
-                model: 'gemini-2-flash',
+                model: 'gemini-2.5-flash',
                 contents: 'Câu hỏi tiếp theo',
                 config: {
                     systemInstruction: GAME_SYSTEM_INSTRUCTION,
