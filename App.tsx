@@ -92,7 +92,7 @@ const ChatInterface = () => {
       if (!chatRef.current) {
         const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
         chatRef.current = ai.chats.create({
-          model: 'gemini-2-flash',
+          model: 'gemini-2.5-flash',
           config: { systemInstruction: SYSTEM_INSTRUCTION },
         });
       }
