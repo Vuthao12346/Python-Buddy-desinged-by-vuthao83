@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { useState, useRef, useEffect } from 'react';
 // Fix: Import `Type` for response schema and remove `Chat` as we are switching to `generateContent`.
 import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
@@ -56,6 +57,16 @@ export const FishingGame: React.FC = () => {
     const [feedback, setFeedback] = useState<Evaluation | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // DEBUG: Log API key để kiểm tra (có thể xóa sau khi xác nhận hoạt động)
+    useEffect(() => {
+        const key = import.meta.env.VITE_API_KEY;
+        if (!key) {
+            console.error('VITE_API_KEY is missing!');
+        } else {
+            console.log('VITE_API_KEY loaded:', key.slice(0, 6) + '...');
+        }
+    }, []);
     // Fix: Removed chatRef as we are no longer using the Chat API for this component.
 
     const speak = (text: string) => {
@@ -77,9 +88,16 @@ export const FishingGame: React.FC = () => {
         setUserAnswer('');
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+            const apiKey = import.meta.env.VITE_API_KEY;
+            if (!apiKey) {
+                setError('API key không tồn tại. Hãy kiểm tra biến môi trường VITE_API_KEY.');
+                setIsLoading(false);
+                return;
+            }
+            // Tạo instance GoogleGenAI dùng key từ env
+            const ai = new GoogleGenAI({ apiKey });
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-2-flash',
                 contents: 'Câu hỏi tiếp theo',
                 config: {
                     systemInstruction: GAME_SYSTEM_INSTRUCTION,
@@ -101,7 +119,7 @@ export const FishingGame: React.FC = () => {
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             setError(`Không thể tải câu hỏi. Vui lòng thử lại. Lỗi: ${errorMessage}`);
-            console.error(e);
+            console.error('DEBUG Gemini error:', e);
         } finally {
             setIsLoading(false);
         }
@@ -120,10 +138,17 @@ export const FishingGame: React.FC = () => {
         setUserAnswer(answer);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+            const apiKey = import.meta.env.VITE_API_KEY;
+            if (!apiKey) {
+                setError('API key không tồn tại. Hãy kiểm tra biến môi trường VITE_API_KEY.');
+                setIsLoading(false);
+                return;
+            }
+            // Tạo instance GoogleGenAI dùng key từ env
+            const ai = new GoogleGenAI({ apiKey });
             const prompt = `Câu hỏi là: "${question.question}". Câu trả lời của tôi là: "${answer}". Câu trả lời này đúng hay sai?`;
             const response: GenerateContentResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-2-flash',
                 contents: prompt,
                 config: {
                     systemInstruction: GAME_SYSTEM_INSTRUCTION,
@@ -151,7 +176,7 @@ export const FishingGame: React.FC = () => {
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             setError(`Không thể đánh giá câu trả lời. Vui lòng thử lại. Lỗi: ${errorMessage}`);
-            console.error(e);
+            console.error('DEBUG Gemini error:', e);
         } finally {
             setIsLoading(false);
         }
