@@ -148,7 +148,7 @@ export const FishingGame: React.FC = () => {
             const ai = new GoogleGenAI({ apiKey });
             const prompt = `Câu hỏi là: "${question.question}". Câu trả lời của tôi là: "${answer}". Câu trả lời này đúng hay sai?`;
             const response: GenerateContentResponse = await ai.models.generateContent({
-                model: 'gemini-2-flash',
+                model: 'gemini-2.5-flash',
                 contents: prompt,
                 config: {
                     systemInstruction: GAME_SYSTEM_INSTRUCTION,
